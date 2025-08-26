@@ -21,8 +21,7 @@ namespace cr
         std::unique_ptr<impl> m_impl;
 
       public:
-        explicit polo()
-            requires std::default_initializable<T>;
+        explicit polo();
 
       public:
         template <typename U = T>

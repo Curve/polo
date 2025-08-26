@@ -57,6 +57,7 @@ struct derived : base
         return false;
     }
 };
+
 // NOLINTNEXTLINE
 suite<"basic"> basic_suite = []()
 {

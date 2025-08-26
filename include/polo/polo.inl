@@ -56,9 +56,7 @@ namespace cr
     }
 
     template <typename T>
-    polo<T>::polo()
-        requires std::default_initializable<T>
-        : m_impl(std::make_unique<typename impl::template model<T>>(std::in_place_t{}))
+    polo<T>::polo() : m_impl(std::make_unique<typename impl::template model<T>>(std::in_place_t{}))
     {
     }
 
