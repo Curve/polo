@@ -37,7 +37,7 @@ namespace cr
     template <typename T>
     template <typename U>
     template <typename... Us>
-    polo<T>::impl::model<U>::model(std::in_place_t, Us &&...args) : m_value(std::forward<Us>(args)...)
+    polo<T>::impl::template model<U>::model(std::in_place_t, Us &&...args) : m_value(std::forward<Us>(args)...)
     {
     }
 
