@@ -5,13 +5,15 @@
 
 namespace cr
 {
+    namespace detail
+    {
+        template <typename T, typename U>
+        struct model;
+    }
+
     template <typename T>
     struct polo<T>::impl
     {
-        template <typename U>
-        struct model;
-
-      public:
         virtual ~impl() = default;
 
       public:
@@ -19,9 +21,8 @@ namespace cr
         [[nodiscard]] virtual std::unique_ptr<impl> copy() = 0;
     };
 
-    template <typename T>
-    template <typename U>
-    struct polo<T>::impl::model : polo<T>::impl
+    template <typename T, typename U>
+    struct detail::model : polo<T>::impl
     {
         U m_value;
 
@@ -31,39 +32,36 @@ namespace cr
 
       public:
         T *value() override;
-        std::unique_ptr<impl> copy() override;
+        std::unique_ptr<typename polo<T>::impl> copy() override;
     };
 
-    template <typename T>
-    template <typename U>
+    template <typename T, typename U>
     template <typename... Us>
-    polo<T>::impl::template model<U>::model(std::in_place_t, Us &&...args) : m_value(std::forward<Us>(args)...)
+    detail::model<T, U>::model(std::in_place_t, Us &&...args) : m_value(std::forward<Us>(args)...)
     {
     }
 
-    template <typename T>
-    template <typename U>
-    T *polo<T>::impl::model<U>::value()
+    template <typename T, typename U>
+    T *detail::model<T, U>::value()
     {
         return std::addressof(m_value);
     }
 
-    template <typename T>
-    template <typename U>
-    std::unique_ptr<typename polo<T>::impl> polo<T>::impl::model<U>::copy()
+    template <typename T, typename U>
+    std::unique_ptr<typename polo<T>::impl> detail::model<T, U>::copy()
     {
-        return std::make_unique<model<U>>(std::in_place_t{}, m_value);
+        return std::make_unique<model>(std::in_place_t{}, m_value);
     }
 
     template <typename T>
-    polo<T>::polo() : m_impl(std::make_unique<typename impl::template model<T>>(std::in_place_t{}))
+    polo<T>::polo() : m_impl(std::make_unique<detail::model<T, T>>(std::in_place_t{}))
     {
     }
 
     template <typename T>
     template <typename U>
         requires std::derived_from<U, T>
-    polo<T>::polo(U &&value) : m_impl(std::make_unique<typename impl::template model<U>>(std::in_place_t{}, std::forward<U>(value)))
+    polo<T>::polo(U &&value) : m_impl(std::make_unique<detail::model<T, U>>(std::in_place_t{}, std::forward<U>(value)))
     {
     }
 
@@ -71,7 +69,7 @@ namespace cr
     template <typename U, typename... Us>
         requires(std::derived_from<U, T> and std::constructible_from<U, Us...>)
     polo<T>::polo(std::in_place_type_t<U>, Us &&...values)
-        : m_impl(std::make_unique<typename impl::template model<U>>(std::in_place_t{}, std::forward<Us>(values)...))
+        : m_impl(std::make_unique<detail::model<T, U>>(std::in_place_t{}, std::forward<Us>(values)...))
     {
     }
 
